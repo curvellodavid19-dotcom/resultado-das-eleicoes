@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-25 10:45 BRT (fontes consultadas)",
+  "updated_at": "2026-10-25 · recortes de fontes publicadas; não é base integral do TSE",
   "type": "1º turno: recorte oficial do TSE reproduzido pela CNN; 2º turno: boletins parciais publicados na imprensa",
   "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
   "countries": [
@@ -76,6 +76,17 @@
       "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
     },
     {
+      "iso2": "ES",
+      "iso3": "ESP",
+      "name": "Espanha",
+      "round1": {
+        "flavio": 3338,
+        "lula": 7263
+      },
+      "round1_source": "https://www.eleicoes.sitescdm.com.br/votos-no-exterior-2026/",
+      "round1_scope": "dois candidatos; outros candidatos não incluídos"
+    },
+    {
       "iso2": "US",
       "iso3": "USA",
       "name": "Estados Unidos",
@@ -98,6 +109,28 @@
       "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
       "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
       "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "FR",
+      "iso3": "FRA",
+      "name": "França",
+      "round1": {
+        "flavio": 1758,
+        "lula": 8769
+      },
+      "round1_source": "https://www.eleicoes.sitescdm.com.br/votos-no-exterior-2026/",
+      "round1_scope": "dois candidatos; outros candidatos não incluídos"
+    },
+    {
+      "iso2": "IT",
+      "iso3": "ITA",
+      "name": "Itália",
+      "round1": {
+        "flavio": 4386,
+        "lula": 6148
+      },
+      "round1_source": "https://www.eleicoes.sitescdm.com.br/votos-no-exterior-2026/",
+      "round1_scope": "dois candidatos; outros candidatos não incluídos"
     },
     {
       "iso2": "JP",
@@ -154,6 +187,17 @@
       "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
     },
     {
+      "iso2": "GB",
+      "iso3": "GBR",
+      "name": "Reino Unido",
+      "round1": {
+        "flavio": 5366,
+        "lula": 8640
+      },
+      "round1_source": "https://www.eleicoes.sitescdm.com.br/votos-no-exterior-2026/",
+      "round1_scope": "dois candidatos; outros candidatos não incluídos"
+    },
+    {
       "iso2": "SG",
       "iso3": "SGP",
       "name": "Singapura",
@@ -164,6 +208,17 @@
       "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
       "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
       "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "CH",
+      "iso3": "CHE",
+      "name": "Suíça",
+      "round1": {
+        "flavio": 4525,
+        "lula": 5194
+      },
+      "round1_source": "https://www.eleicoes.sitescdm.com.br/votos-no-exterior-2026/",
+      "round1_scope": "dois candidatos; outros candidatos não incluídos"
     }
   ]
 }
