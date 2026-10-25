@@ -212,4 +212,4 @@ def robots():
 async def exterior_page(): return FileResponse(ROOT / "exterior.html")
 
 @app.get("/exterior-data.json")
-async def exterior_data(): return FileResponse(ROOT / "exterior-data.json",media_type="application/json",headers={"Cache-Control":"public, max-age=120"})
+async def exterior_data(): return FileResponse(ROOT / "exterior-data.json",media_type="application/json",headers={"Cache-Control":"no-store, max-age=0"})
