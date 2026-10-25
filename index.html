@@ -20,4 +20,8 @@ async function drawEleitos(){
  }catch(e){$('status').textContent='FALHA DE CONEXÃO';$('map').textContent='Não foi possível consultar /api/eleitos';}
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=async()=>{mode=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));if(mode==='eleitos'){await drawEleitos()}else draw()});$('screen').onclick=()=>{document.body.classList.toggle('screen');$('screen').textContent=document.body.classList.contains('screen')?'Sair do telão':'⛶ Modo telão'};loadGeo();refresh();setInterval(refresh,30000);
-</script></body></html>
+</script>
+<!-- ANUNCIO SOCIAL BAR -->
+ <!-- COLE AQUI O CODIGO DO ADSTERRA -->
+</body>
+</html>
