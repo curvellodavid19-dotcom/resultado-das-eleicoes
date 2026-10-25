@@ -1,0 +1,13 @@
+BRASIL VOTOS 2026 — Atualização dos turnos e painel presidencial
+
+- Botões 1º e 2º turno para presidente; 2026 somente.
+- Painel acima do mapa com candidatos, votos, percentuais, diferença em pontos percentuais e seções totalizadas.
+- Clicar numa UF muda o painel; botão Brasil retorna ao total nacional.
+- Primeiro turno usa eleição federal TSE 6257; segundo usa 6258.
+- Governadores e Eleitos permanecem como no projeto anterior (2º turno / arquivos correspondentes).
+- Dados vêm do TSE, sem resultados simulados. Caso os arquivos oficiais não estejam disponíveis, a tela informa indisponibilidade.
+- Anúncios, meta tags, robots e sitemap preservados do ZIP recebido.
+
+PUBLICAÇÃO: Substitua os arquivos do repositório pelos arquivos deste ZIP e aguarde o deploy Live no Render.
+TESTE: /api/resultados?turno=1 e /api/resultados?turno=2.
+OBSERVAÇÃO: o projeto foi validado sintaticamente, mas o acesso ao TSE/Render em produção precisa ser testado após publicação.
