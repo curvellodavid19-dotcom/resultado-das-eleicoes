@@ -16,7 +16,7 @@ PRES='6258'; GOV='6260'; FIRST_PRES='6257'; FIRST_GOV='6259'
 try: TZ=ZoneInfo('America/Sao_Paulo')
 except Exception: TZ=timezone(timedelta(hours=-3))
 START=datetime(2026,10,25,17,tzinfo=TZ)
-CACHE={}; LOCKS={}; HISTORY=deque(maxlen=180)
+CACHE={}; LOCKS={}; HISTORY=deque(maxlen=180); ROUND_HISTORY={1:deque(maxlen=180),2:HISTORY}; NATIONAL_CACHE={}; NATIONAL_LOCKS={}
 INTERVAL=max(20,int(os.getenv('CACHE_SECONDS','30')))
 
 def num(v):
@@ -95,26 +95,39 @@ def sum_regions(regions):
             tally[c['numero']]+=c['votos']; names[c['numero']]=c['nome']; parties[c['numero']]=c['partido'];sqcands[c['numero']]=c.get('sqcand','')
     return summary(sorted(({'numero':n,'sqcand':sqcands.get(n,''),'nome':names[n],'partido':parties[n],'votos':v} for n,v in tally.items()),key=lambda c:-c['votos']))
 
+async def fetch_national_cached(election):
+    """Limit BR/ZZ TSE requests across visitors to one pair per cache interval."""
+    lock=NATIONAL_LOCKS.setdefault(election,asyncio.Lock())
+    async with lock:
+        cached=NATIONAL_CACHE.get(election)
+        if cached and time.monotonic()-cached['at']<INTERVAL:
+            return cached['value']
+        async with httpx.AsyncClient(timeout=13,follow_redirects=True,headers={'User-Agent':'Mozilla/5.0 BrasilVotos2026'}) as client:
+            br,br_error=await fetch_one(client,'BR',election,1)
+            zz,zz_error=await fetch_one(client,'ZZ',election,1)
+        value=(br,br_error,zz,zz_error)
+        NATIONAL_CACHE[election]={'at':time.monotonic(),'value':value}
+        return value
+
 @app.get('/api/resultados')
 async def results(turno: int = 2):
     if turno not in (1,2): return {"status":"indisponivel","mensagem":"Turno invalido","estados":[]}
     election = FIRST_PRES if turno == 1 else PRES
     inicio = datetime(2026,10,4 if turno == 1 else 25,17,tzinfo=TZ)
     if datetime.now(TZ)<inicio:
-        return {'status':'aguardando','mensagem':'Divulgacao oficial prevista a partir das 17h de Brasilia.','estados':[],'historico':list(HISTORY) if turno == 2 else [],'exterior_status':'aguardando'}
+        return {'status':'aguardando','mensagem':'Divulgacao oficial prevista a partir das 17h de Brasilia.','estados':[],'historico':list(ROUND_HISTORY[turno]),'exterior_status':'aguardando'}
     data=await collect(election,1,UFS)
     # O arquivo BR oficial ja inclui exterior. NUNCA somar BR + ZZ (duplicaria exterior).
-    async with httpx.AsyncClient(timeout=13,follow_redirects=True,headers={'User-Agent':'Mozilla/5.0 BrasilVotos2026'}) as client:
-        br,br_error=await fetch_one(client,'BR',election,1)
-        zz,zz_error=await fetch_one(client,'ZZ',election,1)
+    br,br_error,zz,zz_error=await fetch_national_cached(election)
     partial=sum_regions(data['estados']+([zz] if zz else []))
     candidates=br['candidatos'] if br else partial
     sec=br['secoes_totalizadas'] if br else sum(x['secoes_totalizadas'] for x in data['estados']+([zz] if zz else []))
     prev=br['secoes_previstas'] if br else sum(x['secoes_previstas'] for x in data['estados']+([zz] if zz else []))
     total=sum(x['votos'] for x in candidates)
     snap={'hora':datetime.now(TZ).strftime('%H:%M:%S'),'votos':total,'ufs':data['ufs_recebidas']}
-    if turno == 2 and total and (not HISTORY or HISTORY[-1]['votos']!=total or HISTORY[-1]['ufs']!=snap['ufs']):HISTORY.append(snap)
-    return {**data,'status':'oficial' if br and total else ('parcial' if total else 'indisponivel'),'candidatos':candidates,'votos_validos':total,'secoes_totalizadas':sec,'secoes_previstas':prev,'percentual_secoes':round(100*sec/prev,2) if prev else None,'historico':list(HISTORY) if turno == 2 else [],'exterior':zz,'exterior_status':'disponivel' if zz else 'indisponivel','exterior_erro':zz_error,'brasil_erro':br_error,'abrangencia_completa':bool(br),'total_nacional_oficial':bool(br),'totalizacao_final':bool(br and br['totalizacao_final']),'aviso':'Total oficial BR (inclui exterior); ZZ exibido separadamente, sem somar duas vezes.' if br else 'Soma parcial de UFs e exterior quando disponiveis. Nao equivale ao total oficial BR.'}
+    history=ROUND_HISTORY[turno]
+    if total and (not history or history[-1]['votos']!=total or history[-1]['ufs']!=snap['ufs']):history.append(snap)
+    return {**data,'status':'oficial' if br and total else ('parcial' if total else 'indisponivel'),'candidatos':candidates,'votos_validos':total,'secoes_totalizadas':sec,'secoes_previstas':prev,'percentual_secoes':round(100*sec/prev,2) if prev else None,'historico':list(ROUND_HISTORY[turno]),'exterior':zz,'exterior_status':'disponivel' if zz else 'indisponivel','exterior_erro':zz_error,'brasil_erro':br_error,'abrangencia_completa':bool(br),'total_nacional_oficial':bool(br),'totalizacao_final':bool(br and br['totalizacao_final']),'aviso':'Total oficial BR (inclui exterior); ZZ exibido separadamente, sem somar duas vezes.' if br else 'Soma parcial de UFs e exterior quando disponiveis. Nao equivale ao total oficial BR.'}
 
 @app.get('/api/governadores')
 async def governors():
