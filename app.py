@@ -168,3 +168,9 @@ def sitemap():
         ROOT / "sitemap.xml",
         media_type="application/xml"
     )
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return FileResponse(
+        ROOT / "robots.txt",
+        media_type="text/plain"
+    )
