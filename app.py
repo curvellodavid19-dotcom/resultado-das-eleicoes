@@ -6,7 +6,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 import httpx
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 ROOT=Path(__file__).resolve().parent
 app=FastAPI(title='Brasil Votos 2026 - FINAL', docs_url='/docs', openapi_url='/openapi.json')
@@ -16,7 +16,7 @@ PRES='6258'; GOV='6260'; FIRST_PRES='6257'; FIRST_GOV='6259'
 try: TZ=ZoneInfo('America/Sao_Paulo')
 except Exception: TZ=timezone(timedelta(hours=-3))
 START=datetime(2026,10,25,17,tzinfo=TZ)
-CACHE={}; LOCKS={}; HISTORY=deque(maxlen=180)
+CACHE={}; LOCKS={}; HISTORY=deque(maxlen=180); ROUND_HISTORY={1:deque(maxlen=180),2:HISTORY}; NATIONAL_CACHE={}; NATIONAL_LOCKS={}
 INTERVAL=max(20,int(os.getenv('CACHE_SECONDS','30')))
 
 def num(v):
@@ -32,22 +32,22 @@ def parse(raw,uf,office):
     cargo=next((c for c in cargos if num(c.get('cd'))==office),None)
     if cargo is None and raw.get('cand') is not None and num(raw.get('cdcar'))==office: cargo=raw
     if cargo is None: raise ValueError('Cargo nao localizado no arquivo EA20')
-    tally=defaultdict(int);names={};party={}
+    tally=defaultdict(int);names={};party={};sqcands={}
     for agr in cargo.get('agr',[]):
         for par in agr.get('par',[]) or [agr]:
             for c in par.get('cand',[]):
                 n=str(c.get('n') or c.get('sqcand') or '').strip()
                 if not n:continue
-                tally[n]+=num(c.get('vap'))
+                tally[n]+=num(c.get('vap'));sqcands[n]=str(c.get('sqcand') or c.get('sqCand') or '')
                 names[n]=str(c.get('nm') or c.get('nmu') or names.get(n) or 'Candidatura '+n)
                 party[n]=str(c.get('sgp') or c.get('sg') or par.get('sgp') or par.get('sg') or party.get(n) or '')
     if not tally and cargo.get('cand'):
         for c in cargo['cand']:
             n=str(c.get('n') or c.get('sqcand') or '').strip()
-            if n: tally[n]+=num(c.get('vap'));names[n]=str(c.get('nmu') or c.get('nm') or n);party[n]=str(c.get('sgp') or '')
+            if n: tally[n]+=num(c.get('vap'));sqcands[n]=str(c.get('sqcand') or c.get('sqCand') or '');names[n]=str(c.get('nmu') or c.get('nm') or n);party[n]=str(c.get('sgp') or '')
     if not tally:raise ValueError('Candidaturas nao encontradas; formato EA20 pode ter mudado')
     total=sum(tally.values())
-    candidates=sorted(({'numero':n,'nome':names[n],'partido':party[n],'votos':v,'percentual':round(100*v/total,2) if total else 0} for n,v in tally.items()),key=lambda c:-c['votos'])
+    candidates=sorted(({'numero':n,'sqcand':sqcands.get(n,''),'nome':names[n],'partido':party[n],'votos':v,'percentual':round(100*v/total,2) if total else 0} for n,v in tally.items()),key=lambda c:-c['votos'])
     st=num(cargo.get('st',raw.get('st'))); s=num(cargo.get('s',raw.get('s')))
     if s and st>s:raise ValueError('Numero de secoes inconsistente')
     return {'uf':uf,'candidatos':candidates,'lider':candidates[0] if total else None,'validos':total,'secoes_totalizadas':st,'secoes_previstas':s,'percentual_secoes':round(st*100/s,2) if s else None,'gerado_em':f"{raw.get('dg','')} {raw.get('hg','')}".strip(),'totalizacao_final':str(raw.get('and','')).lower()=='f','fonte_url':source_url(uf,PRES if office==1 else GOV,office)}
@@ -89,29 +89,45 @@ def summary(candidates):
     return [{**c,'percentual':round(100*c['votos']/total,2) if total else 0} for c in candidates]
 
 def sum_regions(regions):
-    tally=defaultdict(int); names={}; parties={}
+    tally=defaultdict(int); names={}; parties={};sqcands={}
     for state in regions:
         for c in state['candidatos']:
-            tally[c['numero']]+=c['votos']; names[c['numero']]=c['nome']; parties[c['numero']]=c['partido']
-    return summary(sorted(({'numero':n,'nome':names[n],'partido':parties[n],'votos':v} for n,v in tally.items()),key=lambda c:-c['votos']))
+            tally[c['numero']]+=c['votos']; names[c['numero']]=c['nome']; parties[c['numero']]=c['partido'];sqcands[c['numero']]=c.get('sqcand','')
+    return summary(sorted(({'numero':n,'sqcand':sqcands.get(n,''),'nome':names[n],'partido':parties[n],'votos':v} for n,v in tally.items()),key=lambda c:-c['votos']))
+
+async def fetch_national_cached(election):
+    """Limit BR/ZZ TSE requests across visitors to one pair per cache interval."""
+    lock=NATIONAL_LOCKS.setdefault(election,asyncio.Lock())
+    async with lock:
+        cached=NATIONAL_CACHE.get(election)
+        if cached and time.monotonic()-cached['at']<INTERVAL:
+            return cached['value']
+        async with httpx.AsyncClient(timeout=13,follow_redirects=True,headers={'User-Agent':'Mozilla/5.0 BrasilVotos2026'}) as client:
+            br,br_error=await fetch_one(client,'BR',election,1)
+            zz,zz_error=await fetch_one(client,'ZZ',election,1)
+        value=(br,br_error,zz,zz_error)
+        NATIONAL_CACHE[election]={'at':time.monotonic(),'value':value}
+        return value
 
 @app.get('/api/resultados')
-async def results():
-    if datetime.now(TZ)<START:
-        return {'status':'aguardando','mensagem':'Divulgacao oficial prevista a partir das 17h de Brasilia.','estados':[],'historico':list(HISTORY),'exterior_status':'aguardando'}
-    data=await collect(PRES,1,UFS)
+async def results(turno: int = 2):
+    if turno not in (1,2): return {"status":"indisponivel","mensagem":"Turno invalido","estados":[]}
+    election = FIRST_PRES if turno == 1 else PRES
+    inicio = datetime(2026,10,4 if turno == 1 else 25,17,tzinfo=TZ)
+    if datetime.now(TZ)<inicio:
+        return {'status':'aguardando','mensagem':'Divulgacao oficial prevista a partir das 17h de Brasilia.','estados':[],'historico':list(ROUND_HISTORY[turno]),'exterior_status':'aguardando'}
+    data=await collect(election,1,UFS)
     # O arquivo BR oficial ja inclui exterior. NUNCA somar BR + ZZ (duplicaria exterior).
-    async with httpx.AsyncClient(timeout=13,follow_redirects=True,headers={'User-Agent':'Mozilla/5.0 BrasilVotos2026'}) as client:
-        br,br_error=await fetch_one(client,'BR',PRES,1)
-        zz,zz_error=await fetch_one(client,'ZZ',PRES,1)
+    br,br_error,zz,zz_error=await fetch_national_cached(election)
     partial=sum_regions(data['estados']+([zz] if zz else []))
     candidates=br['candidatos'] if br else partial
     sec=br['secoes_totalizadas'] if br else sum(x['secoes_totalizadas'] for x in data['estados']+([zz] if zz else []))
     prev=br['secoes_previstas'] if br else sum(x['secoes_previstas'] for x in data['estados']+([zz] if zz else []))
     total=sum(x['votos'] for x in candidates)
     snap={'hora':datetime.now(TZ).strftime('%H:%M:%S'),'votos':total,'ufs':data['ufs_recebidas']}
-    if total and (not HISTORY or HISTORY[-1]['votos']!=total or HISTORY[-1]['ufs']!=snap['ufs']):HISTORY.append(snap)
-    return {**data,'status':'oficial' if br and total else ('parcial' if total else 'indisponivel'),'candidatos':candidates,'votos_validos':total,'secoes_totalizadas':sec,'secoes_previstas':prev,'percentual_secoes':round(100*sec/prev,2) if prev else None,'historico':list(HISTORY),'exterior':zz,'exterior_status':'disponivel' if zz else 'indisponivel','exterior_erro':zz_error,'brasil_erro':br_error,'abrangencia_completa':bool(br),'total_nacional_oficial':bool(br),'totalizacao_final':bool(br and br['totalizacao_final']),'aviso':'Total oficial BR (inclui exterior); ZZ exibido separadamente, sem somar duas vezes.' if br else 'Soma parcial de UFs e exterior quando disponiveis. Nao equivale ao total oficial BR.'}
+    history=ROUND_HISTORY[turno]
+    if total and (not history or history[-1]['votos']!=total or history[-1]['ufs']!=snap['ufs']):history.append(snap)
+    return {**data,'status':'oficial' if br and total else ('parcial' if total else 'indisponivel'),'candidatos':candidates,'votos_validos':total,'secoes_totalizadas':sec,'secoes_previstas':prev,'percentual_secoes':round(100*sec/prev,2) if prev else None,'historico':list(ROUND_HISTORY[turno]),'exterior':zz,'exterior_status':'disponivel' if zz else 'indisponivel','exterior_erro':zz_error,'brasil_erro':br_error,'abrangencia_completa':bool(br),'total_nacional_oficial':bool(br),'totalizacao_final':bool(br and br['totalizacao_final']),'aviso':'Total oficial BR (inclui exterior); ZZ exibido separadamente, sem somar duas vezes.' if br else 'Soma parcial de UFs e exterior quando disponiveis. Nao equivale ao total oficial BR.'}
 
 @app.get('/api/governadores')
 async def governors():
@@ -160,5 +176,34 @@ async def elected():
         c=br['lider'];elected.append({'cargo':'Presidente','uf':'BR','nome':c['nome'],'numero':c['numero'],'partido':c['partido'],'votos':c['votos'],'eleicao':PRES,'fonte_url':source_url('BR',PRES,1)})
     return {'status':'disponivel' if elected else 'aguardando_confirmacao','eleitos':elected,'erros':errors,'fonte':BASE,'mensagem':'Somente confirmacoes suportadas por arquivos oficiais. Presidente via EA20 BR final; Governador 2o turno via EA10 + EA20 final; Senador e Deputado Federal via EA10 1o turno. Outros cargos ainda nao integrados.'}
 
+
+@app.get('/api/foto-presidencial/{turno}/{sqcand}', include_in_schema=False)
+async def foto_presidencial(turno: int, sqcand: str):
+    # Somente imagens oficiais TSE; nao aceita URLs arbitrarias.
+    if turno not in (1,2) or not sqcand.isdecimal() or len(sqcand)>18:
+        return Response(status_code=404)
+    election=FIRST_PRES if turno==1 else PRES
+    url=f'{BASE}/ele2026/{election}/fotos/br/{sqcand}.jpeg'
+    try:
+        async with httpx.AsyncClient(timeout=9,follow_redirects=True) as client:
+            resp=await client.get(url)
+        if resp.status_code==200 and resp.headers.get('content-type','').lower().startswith('image/') and len(resp.content)<2000000:
+            return Response(content=resp.content,media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400'})
+    except httpx.HTTPError:
+        pass
+    return Response(status_code=404)
+
 @app.get('/')
 async def index():return FileResponse(ROOT/'index.html')
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap():
+    return FileResponse(
+        ROOT / "sitemap.xml",
+        media_type="application/xml"
+    )
+@app.get("/robots.txt", include_in_schema=False)
+def robots():
+    return FileResponse(
+        ROOT / "robots.txt",
+        media_type="text/plain"
+    )
