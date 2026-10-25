@@ -6,7 +6,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 import httpx
 from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 
 ROOT=Path(__file__).resolve().parent
 app=FastAPI(title='Brasil Votos 2026 - FINAL', docs_url='/docs', openapi_url='/openapi.json')
@@ -32,22 +32,22 @@ def parse(raw,uf,office):
     cargo=next((c for c in cargos if num(c.get('cd'))==office),None)
     if cargo is None and raw.get('cand') is not None and num(raw.get('cdcar'))==office: cargo=raw
     if cargo is None: raise ValueError('Cargo nao localizado no arquivo EA20')
-    tally=defaultdict(int);names={};party={}
+    tally=defaultdict(int);names={};party={};sqcands={}
     for agr in cargo.get('agr',[]):
         for par in agr.get('par',[]) or [agr]:
             for c in par.get('cand',[]):
                 n=str(c.get('n') or c.get('sqcand') or '').strip()
                 if not n:continue
-                tally[n]+=num(c.get('vap'))
+                tally[n]+=num(c.get('vap'));sqcands[n]=str(c.get('sqcand') or c.get('sqCand') or '')
                 names[n]=str(c.get('nm') or c.get('nmu') or names.get(n) or 'Candidatura '+n)
                 party[n]=str(c.get('sgp') or c.get('sg') or par.get('sgp') or par.get('sg') or party.get(n) or '')
     if not tally and cargo.get('cand'):
         for c in cargo['cand']:
             n=str(c.get('n') or c.get('sqcand') or '').strip()
-            if n: tally[n]+=num(c.get('vap'));names[n]=str(c.get('nmu') or c.get('nm') or n);party[n]=str(c.get('sgp') or '')
+            if n: tally[n]+=num(c.get('vap'));sqcands[n]=str(c.get('sqcand') or c.get('sqCand') or '');names[n]=str(c.get('nmu') or c.get('nm') or n);party[n]=str(c.get('sgp') or '')
     if not tally:raise ValueError('Candidaturas nao encontradas; formato EA20 pode ter mudado')
     total=sum(tally.values())
-    candidates=sorted(({'numero':n,'nome':names[n],'partido':party[n],'votos':v,'percentual':round(100*v/total,2) if total else 0} for n,v in tally.items()),key=lambda c:-c['votos'])
+    candidates=sorted(({'numero':n,'sqcand':sqcands.get(n,''),'nome':names[n],'partido':party[n],'votos':v,'percentual':round(100*v/total,2) if total else 0} for n,v in tally.items()),key=lambda c:-c['votos'])
     st=num(cargo.get('st',raw.get('st'))); s=num(cargo.get('s',raw.get('s')))
     if s and st>s:raise ValueError('Numero de secoes inconsistente')
     return {'uf':uf,'candidatos':candidates,'lider':candidates[0] if total else None,'validos':total,'secoes_totalizadas':st,'secoes_previstas':s,'percentual_secoes':round(st*100/s,2) if s else None,'gerado_em':f"{raw.get('dg','')} {raw.get('hg','')}".strip(),'totalizacao_final':str(raw.get('and','')).lower()=='f','fonte_url':source_url(uf,PRES if office==1 else GOV,office)}
@@ -89,11 +89,11 @@ def summary(candidates):
     return [{**c,'percentual':round(100*c['votos']/total,2) if total else 0} for c in candidates]
 
 def sum_regions(regions):
-    tally=defaultdict(int); names={}; parties={}
+    tally=defaultdict(int); names={}; parties={};sqcands={}
     for state in regions:
         for c in state['candidatos']:
-            tally[c['numero']]+=c['votos']; names[c['numero']]=c['nome']; parties[c['numero']]=c['partido']
-    return summary(sorted(({'numero':n,'nome':names[n],'partido':parties[n],'votos':v} for n,v in tally.items()),key=lambda c:-c['votos']))
+            tally[c['numero']]+=c['votos']; names[c['numero']]=c['nome']; parties[c['numero']]=c['partido'];sqcands[c['numero']]=c.get('sqcand','')
+    return summary(sorted(({'numero':n,'sqcand':sqcands.get(n,''),'nome':names[n],'partido':parties[n],'votos':v} for n,v in tally.items()),key=lambda c:-c['votos']))
 
 @app.get('/api/resultados')
 async def results(turno: int = 2):
@@ -162,6 +162,23 @@ async def elected():
     if br and br['totalizacao_final'] and br['lider'] and br['validos']:
         c=br['lider'];elected.append({'cargo':'Presidente','uf':'BR','nome':c['nome'],'numero':c['numero'],'partido':c['partido'],'votos':c['votos'],'eleicao':PRES,'fonte_url':source_url('BR',PRES,1)})
     return {'status':'disponivel' if elected else 'aguardando_confirmacao','eleitos':elected,'erros':errors,'fonte':BASE,'mensagem':'Somente confirmacoes suportadas por arquivos oficiais. Presidente via EA20 BR final; Governador 2o turno via EA10 + EA20 final; Senador e Deputado Federal via EA10 1o turno. Outros cargos ainda nao integrados.'}
+
+
+@app.get('/api/foto-presidencial/{turno}/{sqcand}', include_in_schema=False)
+async def foto_presidencial(turno: int, sqcand: str):
+    # Somente imagens oficiais TSE; nao aceita URLs arbitrarias.
+    if turno not in (1,2) or not sqcand.isdecimal() or len(sqcand)>18:
+        return Response(status_code=404)
+    election=FIRST_PRES if turno==1 else PRES
+    url=f'{BASE}/ele2026/{election}/fotos/br/{sqcand}.jpeg'
+    try:
+        async with httpx.AsyncClient(timeout=9,follow_redirects=True) as client:
+            resp=await client.get(url)
+        if resp.status_code==200 and resp.headers.get('content-type','').lower().startswith('image/') and len(resp.content)<2000000:
+            return Response(content=resp.content,media_type='image/jpeg',headers={'Cache-Control':'public, max-age=86400'})
+    except httpx.HTTPError:
+        pass
+    return Response(status_code=404)
 
 @app.get('/')
 async def index():return FileResponse(ROOT/'index.html')
