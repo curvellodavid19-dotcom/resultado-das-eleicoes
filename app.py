@@ -207,3 +207,9 @@ def robots():
         ROOT / "robots.txt",
         media_type="text/plain"
     )
+
+@app.get("/exterior")
+async def exterior_page(): return FileResponse(ROOT / "exterior.html")
+
+@app.get("/exterior-data.json")
+async def exterior_data(): return FileResponse(ROOT / "exterior-data.json",media_type="application/json",headers={"Cache-Control":"public, max-age=120"})

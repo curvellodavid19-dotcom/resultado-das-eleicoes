@@ -1,0 +1,77 @@
+{
+  "updated_at": "2026-10-25",
+  "type": "Imprensa: boletins de urna, dados parciais não consolidados",
+  "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html",
+  "countries": [
+    {
+      "iso2": "JP",
+      "iso3": "JPN",
+      "name": "Japão",
+      "round2": {
+        "flavio": 47306,
+        "lula": 11201
+      },
+      "round1": {
+        "flavio": 24601,
+        "lula": 5234
+      },
+      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+    },
+    {
+      "iso2": "CN",
+      "iso3": "CHN",
+      "name": "China",
+      "round2": {
+        "flavio": 267,
+        "lula": 502
+      },
+      "round1": {
+        "flavio": 203,
+        "lula": 367
+      },
+      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+    },
+    {
+      "iso2": "KR",
+      "iso3": "KOR",
+      "name": "Coreia do Sul",
+      "round2": {
+        "flavio": 82,
+        "lula": 148
+      },
+      "round1": {
+        "flavio": 72,
+        "lula": 123
+      },
+      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+    },
+    {
+      "iso2": "PH",
+      "iso3": "PHL",
+      "name": "Filipinas",
+      "round2": {
+        "flavio": 39,
+        "lula": 27
+      },
+      "round1": {
+        "flavio": 33,
+        "lula": 26
+      },
+      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+    },
+    {
+      "iso2": "NZ",
+      "iso3": "NZL",
+      "name": "Nova Zelândia",
+      "round2": {
+        "flavio": 101,
+        "lula": 418
+      },
+      "round1": {
+        "flavio": 64,
+        "lula": 234
+      },
+      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+    }
+  ]
+}
