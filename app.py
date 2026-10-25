@@ -1,3 +1,4 @@
+from fastapi.responses import RedirectResponse
 """Brasil Votos 2026 — independent, source-labelled dashboard. Never fabricates totals."""
 import asyncio, json, os, time
 from collections import defaultdict, deque
@@ -209,7 +210,7 @@ def robots():
     )
 
 @app.get("/exterior")
-async def exterior_page(): return FileResponse(ROOT / "exterior.html")
+async def exterior_page(): return RedirectResponse(url="/", status_code=302)
 
 @app.get("/exterior-data.json")
 async def exterior_data(): return FileResponse(ROOT / "exterior-data.json",media_type="application/json",headers={"Cache-Control":"no-store, max-age=0"})
