@@ -162,3 +162,9 @@ async def elected():
 
 @app.get('/')
 async def index():return FileResponse(ROOT/'index.html')
+@app.get("/sitemap.xml", include_in_schema=False)
+def sitemap():
+    return FileResponse(
+        ROOT / "sitemap.xml",
+        media_type="application/xml"
+    )
