@@ -1,21 +1,55 @@
 {
-  "updated_at": "2026-10-25",
-  "type": "Imprensa: boletins de urna, dados parciais não consolidados",
-  "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html",
+  "updated_at": "2026-10-25 10:45 BRT (fontes consultadas)",
+  "type": "1º turno: recorte oficial do TSE reproduzido pela CNN; 2º turno: boletins parciais publicados na imprensa",
+  "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
   "countries": [
     {
-      "iso2": "JP",
-      "iso3": "JPN",
-      "name": "Japão",
-      "round2": {
-        "flavio": 47306,
-        "lula": 11201
-      },
+      "iso2": "DE",
+      "iso3": "DEU",
+      "name": "Alemanha",
       "round1": {
-        "flavio": 24601,
-        "lula": 5234
+        "flavio": 3532,
+        "lula": 13525
       },
-      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
+    },
+    {
+      "iso2": "AR",
+      "iso3": "ARG",
+      "name": "Argentina",
+      "round1": {
+        "flavio": 1681,
+        "lula": 3747
+      },
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
+    },
+    {
+      "iso2": "AU",
+      "iso3": "AUS",
+      "name": "Austrália",
+      "round2": {
+        "flavio": 3465,
+        "lula": 6017
+      },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "CA",
+      "iso3": "CAN",
+      "name": "Canadá",
+      "round1": {
+        "flavio": 7043,
+        "lula": 12508
+      },
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
     },
     {
       "iso2": "CN",
@@ -25,11 +59,9 @@
         "flavio": 267,
         "lula": 502
       },
-      "round1": {
-        "flavio": 203,
-        "lula": 367
-      },
-      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
     },
     {
       "iso2": "KR",
@@ -39,11 +71,21 @@
         "flavio": 82,
         "lula": 148
       },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "US",
+      "iso3": "USA",
+      "name": "Estados Unidos",
       "round1": {
-        "flavio": 72,
-        "lula": 123
+        "flavio": 45004,
+        "lula": 23335
       },
-      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
     },
     {
       "iso2": "PH",
@@ -53,11 +95,39 @@
         "flavio": 39,
         "lula": 27
       },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "JP",
+      "iso3": "JPN",
+      "name": "Japão",
       "round1": {
-        "flavio": 33,
-        "lula": 26
+        "flavio": 24601,
+        "lula": 5234
       },
-      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos",
+      "round2": {
+        "flavio": 47306,
+        "lula": 11201
+      },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "MY",
+      "iso3": "MYS",
+      "name": "Malásia",
+      "round2": {
+        "flavio": 44,
+        "lula": 41
+      },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
     },
     {
       "iso2": "NZ",
@@ -67,11 +137,33 @@
         "flavio": 101,
         "lula": 418
       },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
+    },
+    {
+      "iso2": "PT",
+      "iso3": "PRT",
+      "name": "Portugal",
       "round1": {
-        "flavio": 64,
-        "lula": 234
+        "flavio": 19412,
+        "lula": 26401
       },
-      "source": "https://gauchazh.clicrbs.com.br/politica/eleicoes/noticia/2026/10/votos-no-exterior-veja-quem-ganhou-em-cada-pais-no-segundo-turno-cmvnmjl7t02k80123txyo8y72.html"
+      "round1_source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "source": "https://www.cnnbrasil.com.br/eleicoes/flavio-vence-nos-eua-e-japao-lula-na-argentina-e-portugal-veja-divisao/",
+      "round1_scope": "votos dos dois candidatos; outros candidatos não incluídos"
+    },
+    {
+      "iso2": "SG",
+      "iso3": "SGP",
+      "name": "Singapura",
+      "round2": {
+        "flavio": 121,
+        "lula": 213
+      },
+      "round2_source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "source": "https://diariodonordeste.verdesmares.com.br/pontopoder/flavio-bolsonaro-ou-lula-veja-como-foi-a-votacao-no-exterior-no-primeiro-e-no-segundo-turno-1.3801116",
+      "round2_scope": "boletins divulgados pela imprensa; parcial, não consolidado"
     }
   ]
 }
